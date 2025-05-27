@@ -113,7 +113,8 @@ For more information, please refer to <http://unlicense.org/>
 #define ARCHITECTURE_E2K     7
 #define ARCHITECTURE_RISCV   8
 #define ARCHITECTURE_PPC     9
-#define ARCHITECTURE_WASM    10
+#define ARCHITECTURE_WASM  10
+#define ARCHITECTURE_S390X 11
 
 #if XASH_AMD64
 	#define XASH_ARCHITECTURE ARCHITECTURE_AMD64
@@ -133,6 +134,8 @@ For more information, please refer to <http://unlicense.org/>
 	#define XASH_ARCHITECTURE ARCHITECTURE_PPC
 #elif XASH_WASM
 	#define XASH_ARCHITECTURE ARCHITECTURE_WASM
+#elif XASH_S390X
+	#define XASH_ARCHITECTURE ARCHITECTURE_S390X
 #else
 	#error
 #endif
