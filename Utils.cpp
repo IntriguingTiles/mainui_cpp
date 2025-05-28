@@ -339,6 +339,21 @@ CBMP* CBMP::LoadFile( const char *filename )
 	if( bmp->id[0] != 'B' || bmp->id[1] != 'M' )
 		return NULL;
 
+	LittleLongSW(bmp->fileSize);
+	LittleLongSW(bmp->reserved0);
+	LittleLongSW(bmp->bitmapDataOffset);
+	LittleLongSW(bmp->bitmapHeaderSize);
+	LittleLongSW(bmp->width);
+	LittleLongSW(bmp->height);
+	LittleShortSW(bmp->planes);
+	LittleShortSW(bmp->bitsPerPixel);
+	LittleLongSW(bmp->compression);
+	LittleLongSW(bmp->bitmapDataSize);
+	LittleLongSW(bmp->hRes);
+	LittleLongSW(bmp->vRes);
+	LittleLongSW(bmp->colors);
+	LittleLongSW(bmp->importantColors);
+
 	// bogus data
 	if( !bmp->width || !bmp->height )
 		return NULL;

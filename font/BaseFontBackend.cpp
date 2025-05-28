@@ -650,7 +650,7 @@ bool CBaseFont::ReadFromCache( const char *filename, charRange_t *range, size_t 
 		return false;
 	}
 
-	if( size != sizeof( cached_font_t ) + hdr->charsCount * sizeof( char_data_t ) + bmp->fileSize )
+	if( size != sizeof( cached_font_t ) + hdr->charsCount * sizeof( char_data_t ) + LittleLong(bmp->fileSize) )
 	{
 		Con_Printf( "Font cache file is too short or too long (3rd check)\n" );
 		EngFuncs::COM_FreeFile( data );
@@ -658,7 +658,7 @@ bool CBaseFont::ReadFromCache( const char *filename, charRange_t *range, size_t 
 		return false;
 	}
 
-	HIMAGE hImage = EngFuncs::PIC_Load( filename, (const byte*)bmp, bmp->fileSize, 0 );
+	HIMAGE hImage = EngFuncs::PIC_Load( filename, (const byte*)bmp, LittleLong(bmp->fileSize), 0 );
 
 	if( !hImage )
 	{
@@ -718,6 +718,7 @@ void CBaseFont::SaveToCache( const char *filename, charRange_t *range, size_t ra
 	uint32_t charsCount = 0;
 	byte *data, *buf_p;
 	size_t size = 0, bmpSize = bmp->GetBitmapHdr()->fileSize;
+	bmp_t *hdr;
 
 	// skip special symbol used for engine
 	if( filename[0] == '#' )
@@ -765,7 +766,23 @@ void CBaseFont::SaveToCache( const char *filename, charRange_t *range, size_t ra
 		}
 	}
 
+	hdr = (bmp_t *)buf_p;
 	memcpy( buf_p, bmp->GetBitmapHdr(), bmpSize );
+
+	LittleLongSW(hdr->fileSize);
+	LittleLongSW(hdr->reserved0);
+	LittleLongSW(hdr->bitmapDataOffset);
+	LittleLongSW(hdr->bitmapHeaderSize);
+	LittleLongSW(hdr->width);
+	LittleLongSW(hdr->height);
+	LittleShortSW(hdr->planes);
+	LittleShortSW(hdr->bitsPerPixel);
+	LittleLongSW(hdr->compression);
+	LittleLongSW(hdr->bitmapDataSize);
+	LittleLongSW(hdr->hRes);
+	LittleLongSW(hdr->vRes);
+	LittleLongSW(hdr->colors);
+	LittleLongSW(hdr->importantColors);
 
 	if( buf_p + bmpSize - data != size )
 		Host_Error( "%s: %i: buf_p + bmpSize - data != size", __FILE__, __LINE__ );
