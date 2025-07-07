@@ -206,7 +206,10 @@ void CBaseFont::UploadGlyphsForRanges(charRange_t *range, int rangeSize)
 		}
 	}
 
-	HIMAGE hImage = EngFuncs::PIC_Load( m_szTextureName, bmp.GetBitmap(), bmp.GetBitmapHdr()->fileSize, 0 );
+	uint bmpSize = bmp.GetBitmapHdr()->fileSize;
+	bmp.Byteswap();
+	HIMAGE hImage = EngFuncs::PIC_Load( m_szTextureName, bmp.GetBitmap(), bmpSize, 0 );
+	bmp.Byteswap();
 
 	SaveToCache( m_szTextureName, range, rangeSize, &bmp );
 
@@ -599,6 +602,9 @@ bool CBaseFont::ReadFromCache( const char *filename, charRange_t *range, size_t 
 		charsCount += range[i].Length();
 
 	hdr = reinterpret_cast<cached_font_t *>( data );
+	LittleLongSW( hdr->ident );
+	LittleLongSW( hdr->version );
+	LittleLongSW( hdr->charsCount );
 
 	if( size < sizeof( cached_font_t ) )
 	{
@@ -676,6 +682,15 @@ bool CBaseFont::ReadFromCache( const char *filename, charRange_t *range, size_t 
 
 		for( j = 0; j < charsCount; j++ )
 		{
+			LittleLongSW( ch->ch );
+			LittleLongSW( ch->a );
+			LittleLongSW( ch->b );
+			LittleLongSW( ch->c );
+			LittleLongSW( ch->left );
+			LittleLongSW( ch->right );
+			LittleLongSW( ch->top );
+			LittleLongSW( ch->bottom );
+
 			if( ch->ch != range[i].Character( j ))
 			{
 				Con_Printf( "Font cache file has different character set. Expected %d, got %d", range[i].Character( j ), ch->ch );
@@ -733,9 +748,9 @@ void CBaseFont::SaveToCache( const char *filename, charRange_t *range, size_t ra
 
 	buf_p = data = new byte[size];
 
-	((cached_font_t *)buf_p)->ident = CACHED_FONT_IDENT;
-	((cached_font_t *)buf_p)->version = CACHED_FONT_VERSION;
-	((cached_font_t *)buf_p)->charsCount = charsCount;
+	((cached_font_t *)buf_p)->ident = LittleLong( CACHED_FONT_IDENT );
+	((cached_font_t *)buf_p)->version = LittleLong( CACHED_FONT_VERSION );
+	((cached_font_t *)buf_p)->charsCount = LittleLong( charsCount );
 
 	buf_p += sizeof( cached_font_t );
 
@@ -750,16 +765,20 @@ void CBaseFont::SaveToCache( const char *filename, charRange_t *range, size_t ra
 
 			ch.ch = range[i].Character( j );
 			GetCharABCWidths( ch.ch, ch.a, ch.b, ch.c );
+			LittleLongSW( ch.a );
+			LittleLongSW( ch.b );
+			LittleLongSW( ch.c );
 
 			glyph_t glyph( ch.ch );
 			int idx = m_glyphs.Find( glyph );
 
 			glyph = m_glyphs[idx];
 
-			ch.left   = glyph.rect.left;
-			ch.right  = glyph.rect.right;
-			ch.bottom = glyph.rect.bottom;
-			ch.top    = glyph.rect.top;
+			ch.left   = LittleLong(glyph.rect.left);
+			ch.right  = LittleLong(glyph.rect.right);
+			ch.bottom = LittleLong(glyph.rect.bottom);
+			ch.top    = LittleLong(glyph.rect.top);
+			LittleLongSW( ch.ch );
 
 			memcpy( buf_p, &ch, sizeof( ch ));
 			buf_p += sizeof( ch );

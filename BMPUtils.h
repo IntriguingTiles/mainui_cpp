@@ -266,6 +266,25 @@ public:
 		return hdr->colors * sizeof( rgbquad_t );
 	}
 
+	inline void Byteswap()
+	{
+		bmp_t *bmp = GetBitmapHdr();
+		LittleLongSW(bmp->fileSize);
+		LittleLongSW(bmp->reserved0);
+		LittleLongSW(bmp->bitmapDataOffset);
+		LittleLongSW(bmp->bitmapHeaderSize);
+		LittleLongSW(bmp->width);
+		LittleLongSW(bmp->height);
+		LittleShortSW(bmp->planes);
+		LittleShortSW(bmp->bitsPerPixel);
+		LittleLongSW(bmp->compression);
+		LittleLongSW(bmp->bitmapDataSize);
+		LittleLongSW(bmp->hRes);
+		LittleLongSW(bmp->vRes);
+		LittleLongSW(bmp->colors);
+		LittleLongSW(bmp->importantColors);
+	}
+
 private:
 	CBMP( bmp_t *data ) :
 		fileAllocated( true ), data( (byte*)data )

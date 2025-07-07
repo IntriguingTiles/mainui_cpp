@@ -123,7 +123,10 @@ void UI_LoadBmpButtons()
 		}
 
 		// upload image into video memory
-		uiStatic.buttonsPics[i] = EngFuncs::PIC_Load( fname, cutted_bmp.GetBitmap(), cutted_bmp.GetBitmapHdr()->fileSize );
+		uint cutted_sz = cutted_bmp.GetBitmapHdr()->fileSize;
+		cutted_bmp.Byteswap();
+		uiStatic.buttonsPics[i] = EngFuncs::PIC_Load( fname, cutted_bmp.GetBitmap(), cutted_sz );
+		cutted_bmp.Byteswap();
 	}
 
 	delete bmp;
